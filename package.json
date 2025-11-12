@@ -11,7 +11,7 @@
 		"url": "https://github.com/yesitsfebreeze/vsc-smearcursor"
 	},
 	"icon": "images/logo.png",
-	"version": "1.2.0",
+	"version": "1.2.1",
 	"engines": {
 		"vscode": "^1.96.0"
 	},
@@ -83,26 +83,34 @@
 					"type": "number",
 					"default": 0.45,
 					"description": "How much the cursor tail shrinks when moving"
+				},
+				"smearcursor.disable_when_selecting": {
+					"type": "boolean",
+					"default": false,
+					"description": "Disable cursor when selecting text"
 				}
 			}
+		},
+		"extensionDependencies": [
+			"be5invis.vscode-custom-css"
+		],
+		"scripts": {
+			"lint": "eslint .",
+			"pretest": "npm run lint"
+		},
+		"devDependencies": {
+			"@types/vscode": "^1.96.0",
+			"@types/mocha": "^10.0.10",
+			"@types/node": "20.x",
+			"eslint": "^9.16.0",
+			"@vscode/test-cli": "^0.0.10",
+			"@vscode/test-electron": "^2.4.1"
+		},
+		"__metadata": {
+			"size": 26549349
 		}
 	},
-	"extensionDependencies": [
-		"be5invis.vscode-custom-css"
-	],
-	"scripts": {
-		"lint": "eslint .",
-		"pretest": "npm run lint"
-	},
-	"devDependencies": {
-		"@types/vscode": "^1.96.0",
-		"@types/mocha": "^10.0.10",
-		"@types/node": "20.x",
-		"eslint": "^9.16.0",
-		"@vscode/test-cli": "^0.0.10",
-		"@vscode/test-electron": "^2.4.1"
-	},
-	"__metadata": {
-		"size": 26549349
-	}
+	"extensionKind": [
+		"ui"
+	]
 }
