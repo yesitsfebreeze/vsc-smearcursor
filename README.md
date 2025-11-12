@@ -21,6 +21,11 @@ This extension contributes the following settings:
 * `smearcursor.tip_shrink`: How much the cursor tip shrinks when moving
 * `smearcursor.tail_shrink`: How much the cursor tail shrinks when moving
 * `smearcursor.opacity`: How Transparent the cursor is when moving
+* `smearcursor.disable_when_selecting`: Disable cursor when selecting text
+* `smearcursor.blink_enabled`: If the cursor should blink or not
+* `smearcursor.blink_easing`: Type of easing function used for the blink animation
+* `smearcursor.blink_interval`:How fast the cursor blinks
+* `smearcursor.blink_delay`: How long the cursor waits before starting to blink after moving
 
 ## Installing
 
@@ -67,3 +72,17 @@ Fix a woopsie doopsie
 Removed opacity (buggy and not really nice to look at)
 Added more sensible defaults
 Only skew cursor when moving diagonally
+
+### 1.2.1
+added pull requests
+
+### 1.3.0
+Fixed blink speed calculation and added small delay
+after moving before the blink starts
+Added to readme and settings:
+	smearcursor.disable_when_selecting
+	smearcursor.blink_enabled
+	smearcursor.blink_easing
+	smearcursor.blink_interval
+	smearcursor.blink_delay
+

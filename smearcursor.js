@@ -5,8 +5,12 @@
 	const TIP_SHRINK = Math.min(Math.max(0, "%<smearcursor.tip_shrink>%" || 0.6), 1)
 	const TAIL_SHRINK = Math.min(Math.max(0, "%<smearcursor.tail_shrink>%" || 0.8), 1)
 	const DISABLE_WHEN_SELECTING = "%<smearcursor.disable_when_selecting>%" || false
+	const BLINK_ENABLED = "%<smearcursor.blink_enabled>%" || true
+	const BLINK_EASING = '"%<smearcursor.blink_easing>%"' || "linear"
+	const BLINK_INTERVAL = "%<smearcursor.blink_interval>%" || 800
+	const BLINK_DELAY = "%<smearcursor.blink_delay>%" || 500
 	const DISCARD_ANIM_COUNT = 1
-	const BLINK_INTERVAL = 530; // VSCode default blink interval in ms
+	
 
 	pow = Math.pow;
 	sqrt = Math.sqrt;
@@ -58,6 +62,10 @@
 	}
 	const get_easing = function (t) {
 		return easings[EASING](t)
+	}
+
+	const get_blink_easing = function (t) {
+		return easings[BLINK_EASING](t)
 	}
 
 	function overlaps(a, b) {
@@ -205,8 +213,29 @@
 	}
 
 	function draw(c, ctx, ctr, stamp, delta, cursor) {
+		if (DISABLE_WHEN_SELECTING && c.has_selection) {
+			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+			ctr.innerHTML = ""
+			return
+		}
+
+		c.blink_delay -= delta
+		if (c.blink_delay < 0) {
+			c.blink_time += delta
+		} else {
+			c.blink_time = 0
+		}
+
 		const points = smear(c, delta)
-		const opacity = c.time > 0 ? 1 : easings['circ'](0.5 + 0.5 * sin((PI * stamp) / BLINK_INTERVAL));
+
+		let opacity = 1.0
+
+		if (BLINK_ENABLED && c.time == 0) {
+			const T = BLINK_INTERVAL
+			const M = c.blink_time % T
+			let t = (2 / T) * Math.abs(M - T / 2)
+			opacity = get_blink_easing(t)
+		}
 
 		ctx.save()
 		ctx.fillStyle = c.background
@@ -262,6 +291,9 @@
 		c.time = c.time || 0
 		c.els = c.els || []
 		c.anim_count = c.anim_count || 0
+		c.blink_delay = c.blink_delay || 0
+		c.blink_time = c.blink_time || 0
+		c.has_selection = c.has_selection || false
 		if (!c.els.includes(cursor)) c.els.push(cursor)
 
 		if (!validate(cursor)) {
@@ -269,6 +301,7 @@
 		}
 
 		if ((c.last_pos.x !== cp.left || c.last_pos.y !== cp.top)) {
+			c.blink_delay = BLINK_DELAY
 			c.anim_count++
 			c.anim_count = Math.min(c.anim_count, DISCARD_ANIM_COUNT + 1);
 			if (c.anim_count > DISCARD_ANIM_COUNT) {
@@ -334,17 +367,13 @@
 		function rr(stamp) { last = stamp; anim(step) }
 
 		function step(stamp) {
+			let has_selection = document.querySelectorAll(".selected-text").length > 0
 			try {
 				delta = (stamp - last)
 				editor = document.querySelector(".part.editor")
 				if (editor === null) return rr(stamp)
 
 				const { ctx, ctr } = create_elements(editor)
-
-				if (DISABLE_WHEN_SELECTING && document.getElementsByClassName("selected-text").length > 0) {
-					ctx.clearRect(0, 0, ctx.canvas.clientWidth, ctx.canvas.clientHeight)
-					return rr(stamp)
-				}
 
 				const cursors = Array.from(editor.getElementsByClassName("cursor"))
 
@@ -354,6 +383,8 @@
 
 				cursors.forEach(cursor => {
 					const c = active_cursors.get(cursor)
+					c.has_selection = has_selection
+
 					if (!c) return
 					c.els = c.els.filter(el => el.isConnected)
 					if (c.els.length === 0) {
